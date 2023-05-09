@@ -1,4 +1,4 @@
-package hu.ait.andwallet.ui.theme
+package hu.ait.shoppingcart.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,34 +1,36 @@
-package hu.ait.andwallet
+package hu.ait.shoppingcart
 
-import SummaryScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import hu.ait.andwallet.ui.screen.mainscreen.MainScreen
-import hu.ait.andwallet.ui.theme.HighLowGameComposeTheme
+import hu.ait.shoppingcart.ui.screen.ShoppingListScreen
+import hu.ait.shoppingcart.ui.screen.SplashScreen
+import hu.ait.shoppingcart.ui.theme.TodoDemoTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            HighLowGameComposeTheme {
+            TodoDemoTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MyAppNavHost()
+                    TodoAppNavHost()
                 }
             }
         }
@@ -36,37 +38,21 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyAppNavHost(
+fun TodoAppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "mainmenu"
+    startDestination: String = "splash_screen"
 ) {
     NavHost(
         modifier = modifier,
         navController = navController,
         startDestination = startDestination
     ) {
-        composable("mainmenu") { MainScreen(
-            onNavigateToSummary = {navController.navigate("summary")},
-            navController = navController
-        )
+        composable("splash_screen") {
+            SplashScreen(navController = navController)
         }
-        //composable("game") { GameScreen()}
-        composable("summary?income={income}&expense={expense}",
-            arguments = listOf(
-                navArgument("income") {
-                defaultValue = 0
-                type = NavType.FloatType
-            },
-                navArgument("expense") {
-                    defaultValue = 0
-                    type = NavType.FloatType
-                })
-        ) {
-            val income = it.arguments?.getFloat("income") ?: 0
-            val expense = it.arguments?.getFloat("expense") ?: 0
-            SummaryScreen(income as Float, expense as Float, navController)
+        composable("main_screen") {
+            ShoppingListScreen(navController = navController)
         }
-
     }
 }

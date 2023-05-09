@@ -1,10 +1,13 @@
 <resources>
-    <string name="app_name">AndWallet</string>
-    <string name="title">Title</string>
-    <string name="amount">Amount (in $)</string>
-    <string name="income">Income</string>
-    <string name="save">Save</string>
-    <string name="delete">Delete all</string>
-    <string name="summary">Summary</string>
-    <string name="text_error_default">Error...</string>
+    <string name="app_name">Shopping Cart</string>
+    <string name="show_all">Show All</string>
+    <string name="show_unpurchased">Show Unpurchased</string>
+    <string name="show_purchased">Show Purchased</string>
+    <string name = "item_name">Item name</string>
+    <string name = "price">Price</string>
+    <string name = "description">Description</string>
+    <string name = "bought">Bought</string>
+    <string name = "title_error">Name is required</string>
+    <string name = "price_error">Price is required</string>
+    <string name = "desc_error">Description is required</string>
 </resources>

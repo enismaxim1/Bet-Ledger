@@ -1,4 +1,4 @@
-package hu.ait.highlowgamecompose
+package hu.ait.tododemo
 
 import org.junit.Test
 

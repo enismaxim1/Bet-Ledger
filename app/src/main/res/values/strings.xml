@@ -1,13 +1,24 @@
 <resources>
-    <string name="app_name">Shopping Cart</string>
+    <string name="app_name">Bet Ledger</string>
     <string name="show_all">Show All</string>
     <string name="show_unpurchased">Show Unpurchased</string>
     <string name="show_purchased">Show Purchased</string>
-    <string name = "item_name">Item name</string>
+    <string name = "bet_title">Bet Title</string>
     <string name = "price">Price</string>
     <string name = "description">Description</string>
     <string name = "bought">Bought</string>
     <string name = "title_error">Name is required</string>
     <string name = "price_error">Price is required</string>
     <string name = "desc_error">Description is required</string>
+    <string name = "party_error">Party is required</string>
+    <string name = "party_win_amount_error">Party win amount is required</string>
+    <string name="save">Save</string>
+    <string name="resolution_status">Resolution Status</string>
+    <string name="party1_win_amount">Party 1 Win Amount</string>
+    <string name="party2_win_amount">Party 2 Win Amount</string>
+    <string name="party1">Party 1</string>
+    <string name="party2">Party 2</string>
+    <string name="show_party1_won">Show Party 1 Won</string>
+    <string name="show_party2_won">Show Party 2 Won</string>
+    <string name="show_unresolved">Show Unresolved</string>
 </resources>

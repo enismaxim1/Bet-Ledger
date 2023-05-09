@@ -1,15 +1,13 @@
 package hu.ait.shoppingcart.ui.screen
 
+import BetListViewModel
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
-import hu.ait.shoppingcart.data.ShoppingItem
-import hu.ait.shoppingcart.data.ShoppingCategory
 import java.util.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,32 +18,31 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import hu.ait.shoppingcart.data.BetItem
 import hu.ait.tododemo.R
+import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShoppingListScreen(
-    shoppingListViewModel: ShoppingListViewModel = viewModel(factory = ShoppingListViewModel.factory),
+fun BetListScreen(
+    betListViewModel: BetListViewModel = viewModel(factory = BetListViewModel.factory),
     navController: NavController
 ) {
     var showAddDialog by rememberSaveable {
         mutableStateOf(false)
     }
 
-    val shoppingList by shoppingListViewModel.getAllShoppingList().collectAsState(
+    val betList by betListViewModel.getAllBets().collectAsState(
         emptyList()
     )
 
-    var shoppingToEdit: ShoppingItem? by rememberSaveable {
+    var betToEdit: BetItem? by rememberSaveable {
         mutableStateOf(null)
     }
 
@@ -53,9 +50,10 @@ fun ShoppingListScreen(
     var expanded by remember { mutableStateOf(false) }
 
     val filteredList = when (filter) {
-        "Unchecked" -> shoppingList.filter { !it.status }
-        "Checked" -> shoppingList.filter { it.status }
-        else -> shoppingList
+        "Unresolved" -> betList.filter { it.resolutionStatus == null}
+        "Resolved Party 1" -> betList.filter { it.resolutionStatus == true}
+        "Resolved Party 2" -> betList.filter { it.resolutionStatus == false }
+        else -> betList
     }
 
     Column {
@@ -73,7 +71,7 @@ fun ShoppingListScreen(
                 }
 
                 IconButton(onClick = {
-                    shoppingListViewModel.clearAllShopping()
+                    betListViewModel.clearAllBets()
                 }) {
                     Icon(Icons.Filled.Delete, null)
                 }
@@ -88,19 +86,26 @@ fun ShoppingListScreen(
                     DropdownMenuItem(onClick = {
                         filter = "All"
                         expanded = false
-                    }, text = {Text(stringResource(R.string.show_all))}
+                    },
+                        text = {Text(stringResource(R.string.show_all))}
                     )
                     DropdownMenuItem(onClick = {
-                        filter = "Unchecked"
+                        filter = "Unresolved"
                         expanded = false
                     },
-                        text = {Text(stringResource(R.string.show_unpurchased))}
+                        text = {Text(stringResource(R.string.show_unresolved))}
                     )
                     DropdownMenuItem(onClick = {
-                        filter = "Checked"
+                        filter = "Resolved Party 1"
                         expanded = false
                     },
-                        text = {Text(stringResource(R.string.show_purchased))}
+                        text = {Text(stringResource(R.string.show_party1_won))}
+                    )
+                    DropdownMenuItem(onClick = {
+                        filter = "Resolved Party 2"
+                        expanded = false
+                    },
+                        text = {Text(stringResource(R.string.show_party2_won))}
                     )
                 }
             })
@@ -110,27 +115,27 @@ fun ShoppingListScreen(
         ) {
 
             if (showAddDialog) {
-                AddNewShoppingForm(
+                AddNewBetForm(
                     onDialogClose = {
                         showAddDialog = false
-                        shoppingToEdit = null
+                        betToEdit = null
                     },
-                    shoppingToEdit = shoppingToEdit
+                    betToEdit = betToEdit
                 )
             }
 
             LazyColumn {
                 items(filteredList) {
-                    ShoppingCard(shoppingItem = it,
-                        onShoppingCheckChange = { checked ->
-                            shoppingListViewModel.changeShoppingState(it, checked)
+                    BetCard(betItem = it,
+                        onBetResolutionChange = { status ->
+                            betListViewModel.changeBetResolutionStatus(it, status)
                         },
                         onRemoveItem = {
-                            shoppingListViewModel.removeShoppingItem(it)
+                            betListViewModel.removeBet(it)
                         },
                         onEditItem = {
                             showAddDialog = true
-                            shoppingToEdit = it
+                            betToEdit = it
                         }
                     )
                 }
@@ -140,53 +145,82 @@ fun ShoppingListScreen(
 }
 
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddNewShoppingForm(
-    shoppingListViewModel: ShoppingListViewModel = viewModel(),
+fun AddNewBetForm(
+    betListViewModel: BetListViewModel = viewModel(),
     onDialogClose: () -> Unit = {},
-    shoppingToEdit: ShoppingItem? = null
+    betToEdit: BetItem? = null
 ) {
-    var newShoppingTitle by remember { mutableStateOf(shoppingToEdit?.title ?: "") }
-    var newShoppingDesc by remember { mutableStateOf(shoppingToEdit?.description ?: "") }
-    var newEstimatedPrice by remember { mutableStateOf(shoppingToEdit?.estimatedPrice ?: "") }
-    var newShoppingCategory by remember { mutableStateOf(shoppingToEdit?.category ?: ShoppingCategory.FOOD) }
-    var newStatus by remember { mutableStateOf(shoppingToEdit?.status ?: false) }
+    var newBetTitle by remember { mutableStateOf(betToEdit?.title ?: "") }
+    var newBetDescription by remember { mutableStateOf(betToEdit?.description ?: "") }
+    var newParty1 by remember { mutableStateOf(betToEdit?.party1 ?: "") }
+    var newParty2 by remember { mutableStateOf(betToEdit?.party2 ?: "") }
+    var newParty1WinAmount by remember { mutableStateOf(betToEdit?.party1WinAmount ?: "") }
+    var newParty2WinAmount by remember { mutableStateOf(betToEdit?.party2WinAmount ?: "") }
+    var resolutionStatus by remember { mutableStateOf(betToEdit?.resolutionStatus ?: false) }
 
     var titleError by rememberSaveable { mutableStateOf("") }
-    var descError by rememberSaveable { mutableStateOf("") }
-    var priceError by rememberSaveable { mutableStateOf("") }
+    var descriptionError by rememberSaveable { mutableStateOf("") }
+    var party1Error by rememberSaveable { mutableStateOf("") }
+    var party2Error by rememberSaveable { mutableStateOf("") }
+    var party1WinAmountError by rememberSaveable { mutableStateOf("") }
+    var party2WinAmountError by rememberSaveable { mutableStateOf("") }
     val titleErrorMessage = stringResource(R.string.title_error)
-    val priceErrorMessage = stringResource(R.string.price_error)
-    val descErrorMessage = stringResource(R.string.desc_error)
+    val descriptionErrorMessage = stringResource(R.string.desc_error)
+    val party1ErrorMessage = stringResource(R.string.party_error)
+    val party2ErrorMessage = stringResource(R.string.party_error)
+    val party1WinAmountErrorMessage = stringResource(R.string.party_win_amount_error)
+    val party2WinAmountErrorMessage = stringResource(R.string.party_win_amount_error)
 
-    fun validateInput(titleErrorMessage: String, priceErrorMessage: String, descErrorMessage: String): Boolean {
+    fun validateInput(): Boolean {
         var isValid = true
 
-        if (newShoppingTitle.isEmpty()) {
+        if (newBetTitle.isEmpty()) {
             titleError = titleErrorMessage
             isValid = false
         } else {
             titleError = ""
         }
 
-        if (newEstimatedPrice.isEmpty()) {
-            priceError = priceErrorMessage
+        if (newBetDescription.isEmpty()) {
+            descriptionError = descriptionErrorMessage
             isValid = false
         } else {
-            priceError = ""
+            descriptionError = ""
         }
 
-        if (newShoppingDesc.isEmpty()) {
-            descError = descErrorMessage
+        if (newParty1.isEmpty()) {
+            party1Error = party1ErrorMessage
             isValid = false
         } else {
-            descError = ""
+            party1Error = ""
+        }
+
+        if (newParty2.isEmpty()) {
+            party2Error = party2ErrorMessage
+            isValid = false
+        } else {
+            party2Error = ""
+        }
+
+        if (newParty1WinAmount.isEmpty()) {
+            party1WinAmountError = party1WinAmountErrorMessage
+            isValid = false
+        } else {
+            party1WinAmountError = ""
+        }
+
+        if (newParty2WinAmount.isEmpty()) {
+            party2WinAmountError = party2WinAmountErrorMessage
+            isValid = false
+        } else {
+            party2WinAmountError = ""
         }
 
         return isValid
     }
+
 
     Dialog(onDismissRequest = onDialogClose) {
         Surface(
@@ -195,14 +229,13 @@ fun AddNewShoppingForm(
                 .wrapContentHeight(),
             shape = RoundedCornerShape(size = 6.dp)
         ) {
-
             Column() {
-
-                OutlinedTextField(value = newShoppingTitle,
+                OutlinedTextField(
+                    value = newBetTitle,
                     modifier = Modifier.padding(4.dp),
-                    label = { Text(stringResource(R.string.item_name)) },
+                    label = { Text(stringResource(R.string.bet_title)) },
                     onValueChange = {
-                        newShoppingTitle = it
+                        newBetTitle = it
                     },
                     isError = titleError.isNotEmpty(),
                     supportingText = {
@@ -212,90 +245,133 @@ fun AddNewShoppingForm(
                     }
                 )
 
-
-                OutlinedTextField(value = newEstimatedPrice,
+                OutlinedTextField(
+                    value = newBetDescription,
                     modifier = Modifier.padding(4.dp),
-                    label = { Text(stringResource(R.string.price)) },
-                    onValueChange = {
-                        newEstimatedPrice = it
-                    },
-                    isError = priceError.isNotEmpty(),
-                    supportingText = {
-                        if (priceError.isNotEmpty()) {
-                            Text(text = priceError, color = Color.Red, fontSize = 12.sp)
-                        }
-                    }
-                )
-
-
-                OutlinedTextField(value = newShoppingDesc,
-                    modifier = Modifier.padding(bottom = 4.dp),
                     label = { Text(stringResource(R.string.description)) },
                     onValueChange = {
-                        newShoppingDesc = it
+                        newBetDescription = it
                     },
-                    isError = descError.isNotEmpty(),
+                    isError = descriptionError.isNotEmpty(),
                     supportingText = {
-                        if (descError.isNotEmpty()) {
-                            Text(text = descError, color = Color.Red, fontSize = 12.sp)
+                        if (descriptionError.isNotEmpty()) {
+                            Text(text = descriptionError, color = Color.Red, fontSize = 12.sp)
                         }
                     }
                 )
 
+                OutlinedTextField(
+                    value = newParty1,
+                    modifier = Modifier.padding(4.dp),
+                    label = { Text(stringResource(R.string.party1)) },
+                    onValueChange = {
+                        newParty1 = it
+                    },
+                    isError = party1Error.isNotEmpty(),
+                    supportingText = {
+                        if (party1Error.isNotEmpty()) {
+                            Text(text = party1Error, color = Color.Red, fontSize = 12.sp)
+                        }
+                    }
+                )
 
-                SpinnerSample(
-                    listOf("Food", "Electronics", "Book"), preselected = newShoppingCategory.name.capitalizeFirstLetter(), onSelectionChanged = { newShoppingCategory = ShoppingCategory.valueOf(
-                        it.uppercase(Locale.getDefault())
-                    ) },
-                    modifier = Modifier.padding(top = 4.dp),
+                OutlinedTextField(
+                    value = newParty2,
+                    modifier = Modifier.padding(4.dp),
+                    label = { Text(stringResource(R.string.party2)) },
+                    onValueChange = {
+                        newParty2 = it
+                    },
+                    isError = party2Error.isNotEmpty(),
+                    supportingText = {
+                        if (party2Error.isNotEmpty()) {
+                            Text(text = party2Error, color = Color.Red, fontSize = 12.sp)
+                        }
+                    }
+                )
+
+                OutlinedTextField(
+                    value = newParty1WinAmount,
+                    modifier = Modifier.padding(4.dp),
+                    label = { Text(stringResource(R.string.party1_win_amount)) },
+                    onValueChange = {
+                        newParty1WinAmount = it
+                    },
+                    isError = party1WinAmountError.isNotEmpty(),
+                    supportingText = {
+                        if (party1WinAmountError.isNotEmpty()) {
+                            Text(text = party1WinAmountError, color = Color.Red, fontSize = 12.sp)
+                        }
+                    }
+                )
+
+                OutlinedTextField(
+                    value = newParty2WinAmount,
+                    modifier = Modifier.padding(4.dp),
+                    label = { Text(stringResource(R.string.party2_win_amount)) },
+                    onValueChange = {
+                        newParty2WinAmount = it
+                    },
+                    isError = party2WinAmountError.isNotEmpty(),
+                    supportingText = {
+                        if (party2WinAmountError.isNotEmpty()) {
+                            Text(text = party2WinAmountError, color = Color.Red, fontSize = 12.sp)
+                        }
+                    }
                 )
 
                 Row(modifier = Modifier.padding(4.dp)) {
                     Text(
-                        text = stringResource(R.string.bought),
+                        text = stringResource(R.string.resolution_status),
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
                             .padding(end = 8.dp)
                     )
                     Checkbox(
-                        checked = newStatus,
-                        onCheckedChange = { newStatus = it },
+                        checked = resolutionStatus,
+                        onCheckedChange = { resolutionStatus = it },
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
 
                 Button(
                     onClick = {
+                        if (validateInput()) {
+                            if (betToEdit == null) {
+                                val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+                                val currentDate = sdf.format(Date())
 
-                        if (validateInput(titleErrorMessage, priceErrorMessage, descErrorMessage)) {
-                            if (shoppingToEdit == null) {
-                                shoppingListViewModel.addShoppingList(
-                                    ShoppingItem(
-                                        title = newShoppingTitle,
-                                        description = newShoppingDesc,
-                                        createDate = Date(System.currentTimeMillis()).toString(),
-                                        category = newShoppingCategory,
-                                        status = newStatus,
-                                        estimatedPrice = newEstimatedPrice
+                                betListViewModel.addBet(
+                                    BetItem(
+                                        title = newBetTitle,
+                                        description = newBetDescription,
+                                        party1 = newParty1,
+                                        party2 = newParty2,
+                                        party1WinAmount = newParty1WinAmount,
+                                        party2WinAmount = newParty2WinAmount,
+                                        resolutionStatus = resolutionStatus,
+                                        createDate = currentDate
                                     )
                                 )
                             } else { // EDIT mode
-                                var shoppingEdited = shoppingToEdit.copy(
-                                    title = newShoppingTitle,
-                                    description = newShoppingDesc,
-                                    category = newShoppingCategory
+                                val betEdited = betToEdit.copy(
+                                    title = newBetTitle,
+                                    description = newBetDescription,
+                                    party1 = newParty1,
+                                    party2 = newParty2,
+                                    party1WinAmount = newParty1WinAmount,
+                                    party2WinAmount = newParty2WinAmount,
+                                    resolutionStatus = resolutionStatus
                                 )
 
-                                shoppingListViewModel.editShoppingItem(
-                                    shoppingEdited
-                                )
+                                betListViewModel.editBetItem(betEdited)
                             }
 
                             onDialogClose()
                         }
                     }
                 ) {
-                    Text(text = "Save")
+                    Text(text = stringResource(R.string.save))
                 }
 
             }
@@ -356,11 +432,11 @@ fun SpinnerSample(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShoppingCard(
-    shoppingItem: ShoppingItem,
-    onShoppingCheckChange: (Boolean) -> Unit = {},
+fun BetCard(
+    betItem: BetItem,
+    onBetResolutionChange: (Boolean) -> Unit = {},
     onRemoveItem: () -> Unit = {},
-    onEditItem: (ShoppingItem) -> Unit = {}
+    onEditItem: (BetItem) -> Unit = {}
 ) {
     Card(
         colors = CardDefaults.cardColors(
@@ -383,27 +459,12 @@ fun ShoppingCard(
                 modifier = Modifier.padding(20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                Image(
-                    painter = painterResource(id = shoppingItem.category.getIcon()),
-                    contentDescription = "Priority",
-                    modifier = Modifier
-                        .size(40.dp)
-                        .padding(end = 10.dp)
-                )
-
                 Column(
                     modifier = Modifier
                         .weight(1f)
                 ) {
                     Text(
-                        text = shoppingItem.title,
-                        textDecoration =
-                        if (shoppingItem.status) {
-                            TextDecoration.LineThrough
-                        } else {
-                            TextDecoration.None
-                        }
+                        text = betItem.title,
                     )
                 }
 
@@ -411,9 +472,9 @@ fun ShoppingCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
-                        checked = shoppingItem.status,
+                        checked = betItem.resolutionStatus ?: false,
                         onCheckedChange = {
-                            onShoppingCheckChange(it)
+                            onBetResolutionChange(it)
                         },
                     )
                     Icon(
@@ -426,7 +487,7 @@ fun ShoppingCard(
                     )
 
                     IconButton(onClick = {
-                        onEditItem(shoppingItem)
+                        onEditItem(betItem)
                     }) {
                         Icon(
                             imageVector = Icons.Filled.Settings,
@@ -450,17 +511,18 @@ fun ShoppingCard(
             }
 
             if (expanded) {
-
-                Text(text = shoppingItem.description)
+                Text(text = "Description: ${betItem.description}")
+                Text(text = "Party 1: ${betItem.party1}")
+                Text(text = "Party 2: ${betItem.party2}")
+                Text(text = "Party 1 Win Amount: ${betItem.party1WinAmount}")
+                Text(text = "Party 2 Win Amount: ${betItem.party2WinAmount}")
                 Text(
-                    text = shoppingItem.createDate,
+                    text = "Created Date: ${betItem.createDate}",
                     style = TextStyle(fontSize = 12.sp)
                 )
-
             }
-
-
         }
     }
 }
+
 

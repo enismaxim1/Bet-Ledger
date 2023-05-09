@@ -16,7 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import hu.ait.shoppingcart.ui.screen.ShoppingListScreen
+import hu.ait.shoppingcart.ui.screen.BetListScreen
 import hu.ait.shoppingcart.ui.screen.SplashScreen
 import hu.ait.shoppingcart.ui.theme.TodoDemoTheme
 
@@ -52,7 +52,7 @@ fun TodoAppNavHost(
             SplashScreen(navController = navController)
         }
         composable("main_screen") {
-            ShoppingListScreen(navController = navController)
+            BetListScreen(navController = navController)
         }
     }
 }

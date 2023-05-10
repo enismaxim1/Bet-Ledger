@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import hu.ait.shoppingcart.MainApplication
 import hu.ait.shoppingcart.data.BetDAO
 import hu.ait.shoppingcart.data.BetItem
+import hu.ait.shoppingcart.data.ResolutionStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
@@ -39,7 +40,7 @@ class BetListViewModel(
         }
     }
 
-    fun changeBetResolutionStatus(betItem: BetItem, value: Boolean) {
+    fun changeBetResolutionStatus(betItem: BetItem, value: ResolutionStatus) {
         val newBetItem = betItem.copy(resolutionStatus = value)
         viewModelScope.launch {
             betDAO.update(newBetItem)

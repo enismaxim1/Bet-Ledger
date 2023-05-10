@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import hu.ait.shoppingcart.data.BetItem
+import hu.ait.shoppingcart.data.ResolutionStatus
 import hu.ait.tododemo.R
 import java.text.SimpleDateFormat
 
@@ -50,9 +51,9 @@ fun BetListScreen(
     var expanded by remember { mutableStateOf(false) }
 
     val filteredList = when (filter) {
-        "Unresolved" -> betList.filter { it.resolutionStatus == null}
-        "Resolved Party 1" -> betList.filter { it.resolutionStatus == true}
-        "Resolved Party 2" -> betList.filter { it.resolutionStatus == false }
+        "Unresolved" -> betList.filter { it.resolutionStatus == ResolutionStatus.UNRESOLVED}
+        "Resolved Party 1" -> betList.filter { it.resolutionStatus == ResolutionStatus.PARTY1_WIN}
+        "Resolved Party 2" -> betList.filter { it.resolutionStatus == ResolutionStatus.PARTY2_WIN }
         else -> betList
     }
 
@@ -158,7 +159,7 @@ fun AddNewBetForm(
     var newParty2 by remember { mutableStateOf(betToEdit?.party2 ?: "") }
     var newParty1WinAmount by remember { mutableStateOf(betToEdit?.party1WinAmount ?: "") }
     var newParty2WinAmount by remember { mutableStateOf(betToEdit?.party2WinAmount ?: "") }
-    var resolutionStatus by remember { mutableStateOf(betToEdit?.resolutionStatus ?: false) }
+    var resolutionStatus by remember { mutableStateOf(betToEdit?.resolutionStatus ?: ResolutionStatus.UNRESOLVED) }
 
     var titleError by rememberSaveable { mutableStateOf("") }
     var descriptionError by rememberSaveable { mutableStateOf("") }
@@ -327,10 +328,17 @@ fun AddNewBetForm(
                             .align(Alignment.CenterVertically)
                             .padding(end = 8.dp)
                     )
-                    Checkbox(
-                        checked = resolutionStatus,
-                        onCheckedChange = { resolutionStatus = it },
-                        modifier = Modifier.align(Alignment.CenterVertically)
+                    SpinnerSample(
+                        listOf("Unresolved", "Party 1 Win", "Party 2 Win"),
+                        preselected = "Unresolved",
+                        onSelectionChanged = { newStatus ->
+                            resolutionStatus = when (newStatus) {
+                                "Party 1 Win" -> ResolutionStatus.PARTY1_WIN
+                                "Party 2 Win" -> ResolutionStatus.PARTY2_WIN
+                                else -> ResolutionStatus.UNRESOLVED
+                            }
+                        },
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
 
@@ -434,7 +442,7 @@ fun SpinnerSample(
 @Composable
 fun BetCard(
     betItem: BetItem,
-    onBetResolutionChange: (Boolean) -> Unit = {},
+    onBetResolutionChange: (ResolutionStatus) -> Unit = {},
     onRemoveItem: () -> Unit = {},
     onEditItem: (BetItem) -> Unit = {}
 ) {
@@ -471,12 +479,6 @@ fun BetCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Checkbox(
-                        checked = betItem.resolutionStatus ?: false,
-                        onCheckedChange = {
-                            onBetResolutionChange(it)
-                        },
-                    )
                     Icon(
                         imageVector = Icons.Filled.Delete,
                         contentDescription = "Delete",

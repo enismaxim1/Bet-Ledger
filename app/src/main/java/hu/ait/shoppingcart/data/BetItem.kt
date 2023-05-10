@@ -15,6 +15,11 @@ data class BetItem(
     @ColumnInfo(name = "party1winamount") val party1WinAmount: String,
     @ColumnInfo(name = "party2winamount") val party2WinAmount: String,
     @ColumnInfo(name = "createdate") val createDate: String,
-    @ColumnInfo(name = "resolutionstatus") val resolutionStatus: Boolean? = null
+    @ColumnInfo(name = "resolutionstatus") val resolutionStatus: ResolutionStatus,
 )
+enum class ResolutionStatus {
+    UNRESOLVED,
+    PARTY1_WIN,
+    PARTY2_WIN
+}
 

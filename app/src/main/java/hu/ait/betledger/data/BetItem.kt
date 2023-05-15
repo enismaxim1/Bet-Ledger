@@ -1,9 +1,8 @@
-package hu.ait.shoppingcart.data
+package hu.ait.betledger.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import hu.ait.tododemo.R
 
 @Entity(tableName = "bettable")
 data class BetItem(

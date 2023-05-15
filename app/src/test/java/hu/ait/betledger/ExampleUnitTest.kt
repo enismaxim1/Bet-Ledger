@@ -1,4 +1,4 @@
-package hu.ait.tododemo
+package hu.ait.betledger
 
 import org.junit.Test
 

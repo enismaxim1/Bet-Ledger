@@ -1,4 +1,4 @@
-package hu.ait.shoppingcart.data
+package hu.ait.betledger.data
 
 import android.content.Context
 import androidx.room.Database

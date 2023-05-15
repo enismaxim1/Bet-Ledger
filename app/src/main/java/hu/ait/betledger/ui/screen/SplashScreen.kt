@@ -1,4 +1,4 @@
-package hu.ait.shoppingcart.ui.screen
+package hu.ait.betledger.ui.screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,10 +8,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import hu.ait.tododemo.R
+import hu.ait.betledger.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.material3.*
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 

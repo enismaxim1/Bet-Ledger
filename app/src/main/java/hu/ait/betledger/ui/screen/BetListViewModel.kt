@@ -3,10 +3,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import hu.ait.shoppingcart.MainApplication
-import hu.ait.shoppingcart.data.BetDAO
-import hu.ait.shoppingcart.data.BetItem
-import hu.ait.shoppingcart.data.ResolutionStatus
+import hu.ait.betledger.MainApplication
+import hu.ait.betledger.data.BetDAO
+import hu.ait.betledger.data.BetItem
+import hu.ait.betledger.data.ResolutionStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 

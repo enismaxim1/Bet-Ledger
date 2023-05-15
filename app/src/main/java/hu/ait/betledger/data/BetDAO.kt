@@ -1,4 +1,4 @@
-package hu.ait.shoppingcart.data
+package hu.ait.betledger.data
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow

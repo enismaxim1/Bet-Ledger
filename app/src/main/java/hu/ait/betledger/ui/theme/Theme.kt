@@ -1,4 +1,4 @@
-package hu.ait.shoppingcart.ui.theme
+package hu.ait.betledger.ui.theme
 
 import android.app.Activity
 import android.os.Build

@@ -1,4 +1,4 @@
-package hu.ait.shoppingcart.ui.screen
+package hu.ait.betledger.ui.screen
 
 import BetListViewModel
 import androidx.compose.animation.animateContentSize
@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
-import hu.ait.shoppingcart.data.BetItem
-import hu.ait.shoppingcart.data.ResolutionStatus
-import hu.ait.tododemo.R
+import hu.ait.betledger.data.BetItem
+import hu.ait.betledger.data.ResolutionStatus
+import hu.ait.betledger.R
 import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)

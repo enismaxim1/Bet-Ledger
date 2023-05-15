@@ -1,4 +1,4 @@
-package hu.ait.shoppingcart.ui.theme
+package hu.ait.betledger.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

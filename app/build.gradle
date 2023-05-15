@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace 'hu.ait.tododemo'
+    namespace 'hu.ait.betledger'
     compileSdk 33
 
     defaultConfig {
-        applicationId "hu.ait.tododemo"
+        applicationId "hu.ait.betledger"
         minSdk 24
         targetSdk 33
         versionCode 1

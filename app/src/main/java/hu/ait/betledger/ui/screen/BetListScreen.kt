@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -51,8 +52,8 @@ fun BetListScreen(
     var expanded by remember { mutableStateOf(false) }
 
     val filteredList = when (filter) {
-        "Unresolved" -> betList.filter { it.resolutionStatus == ResolutionStatus.UNRESOLVED}
-        "Resolved Party 1" -> betList.filter { it.resolutionStatus == ResolutionStatus.PARTY1_WIN}
+        "Unresolved" -> betList.filter { it.resolutionStatus == ResolutionStatus.UNRESOLVED }
+        "Resolved Party 1" -> betList.filter { it.resolutionStatus == ResolutionStatus.PARTY1_WIN }
         "Resolved Party 2" -> betList.filter { it.resolutionStatus == ResolutionStatus.PARTY2_WIN }
         else -> betList
     }
@@ -88,25 +89,25 @@ fun BetListScreen(
                         filter = "All"
                         expanded = false
                     },
-                        text = {Text(stringResource(R.string.show_all))}
+                        text = { Text(stringResource(R.string.show_all)) }
                     )
                     DropdownMenuItem(onClick = {
                         filter = "Unresolved"
                         expanded = false
                     },
-                        text = {Text(stringResource(R.string.show_unresolved))}
+                        text = { Text(stringResource(R.string.show_unresolved)) }
                     )
                     DropdownMenuItem(onClick = {
                         filter = "Resolved Party 1"
                         expanded = false
                     },
-                        text = {Text(stringResource(R.string.show_party1_won))}
+                        text = { Text(stringResource(R.string.show_party1_won)) }
                     )
                     DropdownMenuItem(onClick = {
                         filter = "Resolved Party 2"
                         expanded = false
                     },
-                        text = {Text(stringResource(R.string.show_party2_won))}
+                        text = { Text(stringResource(R.string.show_party2_won)) }
                     )
                 }
             })
@@ -159,7 +160,11 @@ fun AddNewBetForm(
     var newParty2 by remember { mutableStateOf(betToEdit?.party2 ?: "") }
     var newParty1WinAmount by remember { mutableStateOf(betToEdit?.party1WinAmount ?: "") }
     var newParty2WinAmount by remember { mutableStateOf(betToEdit?.party2WinAmount ?: "") }
-    var resolutionStatus by remember { mutableStateOf(betToEdit?.resolutionStatus ?: ResolutionStatus.UNRESOLVED) }
+    var resolutionStatus by remember {
+        mutableStateOf(
+            betToEdit?.resolutionStatus ?: ResolutionStatus.UNRESOLVED
+        )
+    }
 
     var titleError by rememberSaveable { mutableStateOf("") }
     var descriptionError by rememberSaveable { mutableStateOf("") }
@@ -224,164 +229,227 @@ fun AddNewBetForm(
 
 
     Dialog(onDismissRequest = onDialogClose) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            shape = RoundedCornerShape(size = 6.dp)
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 10.dp
+            )
         ) {
-            Column() {
-                OutlinedTextField(
-                    value = newBetTitle,
-                    modifier = Modifier.padding(4.dp),
-                    label = { Text(stringResource(R.string.bet_title)) },
-                    onValueChange = {
-                        newBetTitle = it
-                    },
-                    isError = titleError.isNotEmpty(),
-                    supportingText = {
-                        if (titleError.isNotEmpty()) {
-                            Text(text = titleError, color = Color.Red, fontSize = 12.sp)
-                        }
-                    }
-                )
-
-                OutlinedTextField(
-                    value = newBetDescription,
-                    modifier = Modifier.padding(4.dp),
-                    label = { Text(stringResource(R.string.description)) },
-                    onValueChange = {
-                        newBetDescription = it
-                    },
-                    isError = descriptionError.isNotEmpty(),
-                    supportingText = {
-                        if (descriptionError.isNotEmpty()) {
-                            Text(text = descriptionError, color = Color.Red, fontSize = 12.sp)
-                        }
-                    }
-                )
-
-                OutlinedTextField(
-                    value = newParty1,
-                    modifier = Modifier.padding(4.dp),
-                    label = { Text(stringResource(R.string.party1)) },
-                    onValueChange = {
-                        newParty1 = it
-                    },
-                    isError = party1Error.isNotEmpty(),
-                    supportingText = {
-                        if (party1Error.isNotEmpty()) {
-                            Text(text = party1Error, color = Color.Red, fontSize = 12.sp)
-                        }
-                    }
-                )
-
-                OutlinedTextField(
-                    value = newParty2,
-                    modifier = Modifier.padding(4.dp),
-                    label = { Text(stringResource(R.string.party2)) },
-                    onValueChange = {
-                        newParty2 = it
-                    },
-                    isError = party2Error.isNotEmpty(),
-                    supportingText = {
-                        if (party2Error.isNotEmpty()) {
-                            Text(text = party2Error, color = Color.Red, fontSize = 12.sp)
-                        }
-                    }
-                )
-
-                OutlinedTextField(
-                    value = newParty1WinAmount,
-                    modifier = Modifier.padding(4.dp),
-                    label = { Text(stringResource(R.string.party1_win_amount)) },
-                    onValueChange = {
-                        newParty1WinAmount = it
-                    },
-                    isError = party1WinAmountError.isNotEmpty(),
-                    supportingText = {
-                        if (party1WinAmountError.isNotEmpty()) {
-                            Text(text = party1WinAmountError, color = Color.Red, fontSize = 12.sp)
-                        }
-                    }
-                )
-
-                OutlinedTextField(
-                    value = newParty2WinAmount,
-                    modifier = Modifier.padding(4.dp),
-                    label = { Text(stringResource(R.string.party2_win_amount)) },
-                    onValueChange = {
-                        newParty2WinAmount = it
-                    },
-                    isError = party2WinAmountError.isNotEmpty(),
-                    supportingText = {
-                        if (party2WinAmountError.isNotEmpty()) {
-                            Text(text = party2WinAmountError, color = Color.Red, fontSize = 12.sp)
-                        }
-                    }
-                )
-
-                Row(modifier = Modifier.padding(4.dp)) {
-                    Text(
-                        text = stringResource(R.string.resolution_status),
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .padding(end = 8.dp)
-                    )
-                    SpinnerSample(
-                        listOf("Unresolved", "Party 1 Win", "Party 2 Win"),
-                        preselected = "Unresolved",
-                        onSelectionChanged = { newStatus ->
-                            resolutionStatus = when (newStatus) {
-                                "Party 1 Win" -> ResolutionStatus.PARTY1_WIN
-                                "Party 2 Win" -> ResolutionStatus.PARTY2_WIN
-                                else -> ResolutionStatus.UNRESOLVED
-                            }
-                        },
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        if (validateInput()) {
-                            if (betToEdit == null) {
-                                val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-                                val currentDate = sdf.format(Date())
-
-                                betListViewModel.addBet(
-                                    BetItem(
-                                        title = newBetTitle,
-                                        description = newBetDescription,
-                                        party1 = newParty1,
-                                        party2 = newParty2,
-                                        party1WinAmount = newParty1WinAmount,
-                                        party2WinAmount = newParty2WinAmount,
-                                        resolutionStatus = resolutionStatus,
-                                        createDate = currentDate
-                                    )
-                                )
-                            } else { // EDIT mode
-                                val betEdited = betToEdit.copy(
-                                    title = newBetTitle,
-                                    description = newBetDescription,
-                                    party1 = newParty1,
-                                    party2 = newParty2,
-                                    party1WinAmount = newParty1WinAmount,
-                                    party2WinAmount = newParty2WinAmount,
-                                    resolutionStatus = resolutionStatus
-                                )
-
-                                betListViewModel.editBetItem(betEdited)
-                            }
-
-                            onDialogClose()
-                        }
-                    }
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                LazyColumn(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
-                    Text(text = stringResource(R.string.save))
-                }
+                    item {
+                        OutlinedTextField(
+                            value = newBetTitle,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(2.dp),
+                            label = { Text(stringResource(R.string.bet_title)) },
+                            onValueChange = { newBetTitle = it },
+                            isError = titleError.isNotEmpty(),
+                            supportingText = {
+                                if (titleError.isNotEmpty()) {
+                                    Text(text = titleError, color = Color.Red, fontSize = 10.sp)
+                                }
+                            }
+                        )
+                    }
+                    item {
+                        OutlinedTextField(
+                            value = newBetDescription,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(2.dp),
+                            label = { Text(stringResource(R.string.description)) },
+                            onValueChange = { newBetDescription = it },
+                            isError = descriptionError.isNotEmpty(),
+                            supportingText = {
+                                if (descriptionError.isNotEmpty()) {
+                                    Text(
+                                        text = descriptionError,
+                                        color = Color.Red,
+                                        fontSize = 10.sp
+                                    )
+                                }
+                            }
+                        )
+                    }
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(2.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            OutlinedTextField(
+                                value = newParty1,
+                                modifier = Modifier
+                                    .weight(0.7f)
+                                    .padding(end = 2.dp),
+                                label = { Text(stringResource(R.string.party1)) },
+                                onValueChange = { newParty1 = it },
+                                isError = party1Error.isNotEmpty(),
+                                supportingText = {
+                                    if (party1Error.isNotEmpty()) {
+                                        Text(
+                                            text = party1Error,
+                                            color = Color.Red,
+                                            fontSize = 10.sp
+                                        )
+                                    }
+                                }
+                            )
 
+                            OutlinedTextField(
+                                value = newParty1WinAmount,
+                                modifier = Modifier
+                                    .weight(0.3f)
+                                    .padding(start = 2.dp),
+                                label = { Text(stringResource(R.string.party1_win_amount)) },
+                                onValueChange = { newParty1WinAmount = it },
+                                isError = party1WinAmountError.isNotEmpty(),
+                                supportingText = {
+                                    if (party1WinAmountError.isNotEmpty()) {
+                                        Text(
+                                            text = party1WinAmountError,
+                                            color = Color.Red,
+                                            fontSize = 10.sp
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(2.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            OutlinedTextField(
+                                value = newParty2,
+                                modifier = Modifier
+                                    .weight(0.7f)
+                                    .padding(end = 2.dp),
+                                label = { Text(stringResource(R.string.party2)) },
+                                onValueChange = { newParty2 = it },
+                                isError = party2Error.isNotEmpty(),
+                                supportingText = {
+                                    if (party2Error.isNotEmpty()) {
+                                        Text(
+                                            text = party2Error,
+                                            color = Color.Red,
+                                            fontSize = 10.sp
+                                        )
+                                    }
+                                }
+                            )
+
+                            OutlinedTextField(
+                                value = newParty2WinAmount,
+                                modifier = Modifier
+                                    .weight(0.3f)
+                                    .padding(start = 2.dp),
+                                label = {
+                                    Text(stringResource(R.string.party2_win_amount))
+                                },
+                                onValueChange = { newParty2WinAmount = it },
+                                isError = party2WinAmountError.isNotEmpty(),
+                                supportingText = {
+                                    if (party2WinAmountError.isNotEmpty()) {
+                                        Text(
+                                            text = party2WinAmountError,
+                                            color = Color.Red,
+                                            fontSize = 10.sp
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    item {
+                        Text(
+                            text = stringResource(R.string.resolution_status),
+                            modifier = Modifier
+                                .align(Alignment.Start)
+                                .padding(2.dp),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    item {
+                        SpinnerSample(
+                            listOf("Unresolved", "Party 1 Win", "Party 2 Win"),
+                            preselected = "Unresolved",
+                            onSelectionChanged = { newStatus ->
+                                resolutionStatus = when (newStatus) {
+                                    "Party 1 Win" -> ResolutionStatus.PARTY1_WIN
+                                    "Party 2 Win" -> ResolutionStatus.PARTY2_WIN
+                                    else -> ResolutionStatus.UNRESOLVED
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(2.dp)
+                        )
+                    }
+                    item {
+                        Button(
+                            onClick = {
+                                if (validateInput()) {
+                                    if (betToEdit == null) {
+                                        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+                                        val currentDate = sdf.format(Date())
+
+                                        betListViewModel.addBet(
+                                            BetItem(
+                                                title = newBetTitle,
+                                                description = newBetDescription,
+                                                party1 = newParty1,
+                                                party2 = newParty2,
+                                                party1WinAmount = newParty1WinAmount,
+                                                party2WinAmount = newParty2WinAmount,
+                                                resolutionStatus = resolutionStatus,
+                                                createDate = currentDate
+                                            )
+                                        )
+                                    } else { // EDIT mode
+                                        val betEdited = betToEdit.copy(
+                                            title = newBetTitle,
+                                            description = newBetDescription,
+                                            party1 = newParty1,
+                                            party2 = newParty2,
+                                            party1WinAmount = newParty1WinAmount,
+                                            party2WinAmount = newParty2WinAmount,
+                                            resolutionStatus = resolutionStatus
+                                        )
+
+                                        betListViewModel.editBetItem(betEdited)
+                                    }
+
+                                    onDialogClose()
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.save),
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -399,7 +467,7 @@ fun SpinnerSample(
     onSelectionChanged: (myData: String) -> Unit, modifier: Modifier = Modifier
 ) {
     var selected by remember { mutableStateOf(preselected) }
-    var expanded by remember { mutableStateOf(false) } // initial value
+    var expanded by remember { mutableStateOf(false) }
     OutlinedCard(
         modifier = modifier.clickable {
             expanded = !expanded
@@ -446,21 +514,17 @@ fun BetCard(
     onRemoveItem: () -> Unit = {},
     onEditItem: (BetItem) -> Unit = {}
 ) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ),
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp
         ),
         modifier = Modifier.padding(5.dp)
     ) {
-        var expanded by rememberSaveable { mutableStateOf(false) }
-
         Column(
             modifier = Modifier
-                .padding(10.dp)
                 .animateContentSize()
         ) {
             Row(
@@ -473,6 +537,10 @@ fun BetCard(
                 ) {
                     Text(
                         text = betItem.title,
+                        style = TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        )
                     )
                 }
 
@@ -508,23 +576,34 @@ fun BetCard(
                             }
                         )
                     }
-
                 }
             }
 
             if (expanded) {
-                Text(text = "Description: ${betItem.description}")
-                Text(text = "Party 1: ${betItem.party1}")
-                Text(text = "Party 2: ${betItem.party2}")
-                Text(text = "Party 1 Win Amount: ${betItem.party1WinAmount}")
-                Text(text = "Party 2 Win Amount: ${betItem.party2WinAmount}")
-                Text(
-                    text = "Created Date: ${betItem.createDate}",
-                    style = TextStyle(fontSize = 12.sp)
-                )
+                Divider(color = Color.Gray, modifier = Modifier.padding(horizontal = 8.dp))
+
+                Surface(
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Text(text = "Description: ${betItem.description}")
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Text(text = "Party 1: ${betItem.party1}")
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Text(text = "Party 2: ${betItem.party2}")
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Text(text = "Party 1 Win Amount: ${betItem.party1WinAmount}")
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Text(text = "Party 2 Win Amount: ${betItem.party2WinAmount}")
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Text(
+                            text = "Created Date: ${betItem.createDate}",
+                            style = TextStyle(fontSize = 12.sp)
+                        )
+                    }
+                }
             }
         }
     }
 }
-
-

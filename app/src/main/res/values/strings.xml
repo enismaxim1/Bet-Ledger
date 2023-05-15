@@ -14,8 +14,8 @@
     <string name = "party_win_amount_error">Party win amount is required</string>
     <string name="save">Save</string>
     <string name="resolution_status">Resolution Status</string>
-    <string name="party1_win_amount">Party 1 Win Amount</string>
-    <string name="party2_win_amount">Party 2 Win Amount</string>
+    <string name="party1_win_amount">$</string>
+    <string name="party2_win_amount">$</string>
     <string name="party1">Party 1</string>
     <string name="party2">Party 2</string>
     <string name="show_party1_won">Show Party 1 Won</string>

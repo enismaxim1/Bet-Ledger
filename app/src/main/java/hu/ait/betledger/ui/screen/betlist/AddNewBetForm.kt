@@ -99,14 +99,14 @@ fun AddNewBetForm(
             party2Error = ""
         }
 
-        if (newParty1WinAmount.isEmpty()) {
+        if (newParty1WinAmount.isEmpty() || newParty1WinAmount == "-") {
             party1WinAmountError = party1WinAmountErrorMessage
             isValid = false
         } else {
             party1WinAmountError = ""
         }
 
-        if (newParty2WinAmount.isEmpty()) {
+        if (newParty2WinAmount.isEmpty() || newParty2WinAmount == "-") {
             party2WinAmountError = party2WinAmountErrorMessage
             isValid = false
         } else {
@@ -214,10 +214,14 @@ fun AddNewBetForm(
                                 label = { Text(stringResource(R.string.party1_win_amount)) },
                                 onValueChange = { newValue ->
                                     try {
-                                        if (newValue.isNotEmpty()) {
-                                            newValue.toDouble()
+                                        newParty1WinAmount = if (newValue != "-") {
+                                            if (newValue.isNotEmpty()) {
+                                                newValue.toDouble()
+                                            }
+                                            newValue
+                                        } else {
+                                            newValue
                                         }
-                                        newParty1WinAmount = newValue
                                     } catch (e: NumberFormatException) {
                                         if (!isToastDisplayed) {
                                             showToast(context.resources.getString(R.string.only_numbers_error))

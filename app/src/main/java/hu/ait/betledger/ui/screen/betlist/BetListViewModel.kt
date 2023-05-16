@@ -10,12 +10,30 @@ import hu.ait.betledger.data.ResolutionStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
+
+data class BetItemFilter(
+    var query: String? = null,
+    var party1: String? = null,
+    var party2: String? = null,
+    var before: String? = null,
+    var after: String? = null,
+    var status: ResolutionStatus? = null
+)
+
 class BetListViewModel(
     private val betDAO: BetDAO
 ) : ViewModel() {
 
     fun getAllBets(): Flow<List<BetItem>> {
         return betDAO.getAllBets()
+    }
+
+    fun getAllBetsFiltered(
+        filter: BetItemFilter
+    ): Flow<List<BetItem>> {
+        return betDAO.getAllBetsFiltered(
+            filter.query, filter.party1, filter.party2, filter.before, filter.after, filter.status
+        )
     }
 
     fun getResolvedBetsNum(): Int {
@@ -56,7 +74,8 @@ class BetListViewModel(
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MainApplication)
+                val application =
+                    (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MainApplication)
                 BetListViewModel(betDAO = application.database.betDAO())
             }
         }

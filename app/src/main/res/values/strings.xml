@@ -21,4 +21,8 @@
     <string name="show_party1_won">Show Party 1 Won</string>
     <string name="show_party2_won">Show Party 2 Won</string>
     <string name="show_unresolved">Show Unresolved</string>
+    <string name="only_numbers_error">Only numbers allowed!</string>
+    <string name="bet_database">bet_database</string>
+    <string name="filter_dropdown">Filter</string>
+    <string name="search_prompt">Search Query</string>
 </resources>

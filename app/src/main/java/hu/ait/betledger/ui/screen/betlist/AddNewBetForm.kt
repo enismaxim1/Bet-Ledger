@@ -1,153 +1,32 @@
-package hu.ait.betledger.ui.screen
+package hu.ait.betledger.ui.screen.betlist
 
 import BetListViewModel
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.clickable
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.*
-import androidx.lifecycle.viewmodel.compose.viewModel
-import java.util.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import hu.ait.betledger.R
 import hu.ait.betledger.data.BetItem
 import hu.ait.betledger.data.ResolutionStatus
-import hu.ait.betledger.R
 import java.text.SimpleDateFormat
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BetListScreen(
-    betListViewModel: BetListViewModel = viewModel(factory = BetListViewModel.factory),
-    navController: NavController
-) {
-    var showAddDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    val betList by betListViewModel.getAllBets().collectAsState(
-        emptyList()
-    )
-
-    var betToEdit: BetItem? by rememberSaveable {
-        mutableStateOf(null)
-    }
-
-    var filter by remember { mutableStateOf("All") }
-    var expanded by remember { mutableStateOf(false) }
-
-    val filteredList = when (filter) {
-        "Unresolved" -> betList.filter { it.resolutionStatus == ResolutionStatus.UNRESOLVED }
-        "Resolved Party 1" -> betList.filter { it.resolutionStatus == ResolutionStatus.PARTY1_WIN }
-        "Resolved Party 2" -> betList.filter { it.resolutionStatus == ResolutionStatus.PARTY2_WIN }
-        else -> betList
-    }
-
-    Column {
-        TopAppBar(
-            title = {
-                Text(stringResource(R.string.app_name))
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor =
-                MaterialTheme.colorScheme.secondaryContainer
-            ),
-            actions = {
-                IconButton(onClick = { showAddDialog = true }) {
-                    Icon(Icons.Filled.Add, null)
-                }
-
-                IconButton(onClick = {
-                    betListViewModel.clearAllBets()
-                }) {
-                    Icon(Icons.Filled.Delete, null)
-                }
-
-                IconButton(onClick = { expanded = !expanded }) {
-                    Icon(Icons.Filled.MoreVert, null)
-                }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    DropdownMenuItem(onClick = {
-                        filter = "All"
-                        expanded = false
-                    },
-                        text = { Text(stringResource(R.string.show_all)) }
-                    )
-                    DropdownMenuItem(onClick = {
-                        filter = "Unresolved"
-                        expanded = false
-                    },
-                        text = { Text(stringResource(R.string.show_unresolved)) }
-                    )
-                    DropdownMenuItem(onClick = {
-                        filter = "Resolved Party 1"
-                        expanded = false
-                    },
-                        text = { Text(stringResource(R.string.show_party1_won)) }
-                    )
-                    DropdownMenuItem(onClick = {
-                        filter = "Resolved Party 2"
-                        expanded = false
-                    },
-                        text = { Text(stringResource(R.string.show_party2_won)) }
-                    )
-                }
-            })
-
-        Column(
-            modifier = Modifier.padding(10.dp)
-        ) {
-
-            if (showAddDialog) {
-                AddNewBetForm(
-                    onDialogClose = {
-                        showAddDialog = false
-                        betToEdit = null
-                    },
-                    betToEdit = betToEdit
-                )
-            }
-
-            LazyColumn {
-                items(filteredList) {
-                    BetCard(betItem = it,
-                        onBetResolutionChange = { status ->
-                            betListViewModel.changeBetResolutionStatus(it, status)
-                        },
-                        onRemoveItem = {
-                            betListViewModel.removeBet(it)
-                        },
-                        onEditItem = {
-                            showAddDialog = true
-                            betToEdit = it
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -160,8 +39,16 @@ fun AddNewBetForm(
     var newBetDescription by remember { mutableStateOf(betToEdit?.description ?: "") }
     var newParty1 by remember { mutableStateOf(betToEdit?.party1 ?: "") }
     var newParty2 by remember { mutableStateOf(betToEdit?.party2 ?: "") }
-    var newParty1WinAmount by remember { mutableStateOf(betToEdit?.party1WinAmount ?: "") }
-    var newParty2WinAmount by remember { mutableStateOf(betToEdit?.party2WinAmount ?: "") }
+    var newParty1WinAmount by remember {
+        mutableStateOf(
+            betToEdit?.party1WinAmount?.toString() ?: ""
+        )
+    }
+    var newParty2WinAmount by remember {
+        mutableStateOf(
+            betToEdit?.party2WinAmount?.toString() ?: ""
+        )
+    }
     var resolutionStatus by remember {
         mutableStateOf(
             betToEdit?.resolutionStatus ?: ResolutionStatus.UNRESOLVED
@@ -227,6 +114,18 @@ fun AddNewBetForm(
         }
 
         return isValid
+    }
+
+    val context = LocalContext.current
+    val toastHandler = Handler(Looper.getMainLooper())
+    var isToastDisplayed = false
+
+    fun showToast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        toastHandler.postDelayed(
+            { isToastDisplayed = false },
+            2000
+        )
     }
 
 
@@ -307,14 +206,25 @@ fun AddNewBetForm(
                                     }
                                 }
                             )
-
                             OutlinedTextField(
                                 value = newParty1WinAmount,
                                 modifier = Modifier
                                     .weight(0.3f)
                                     .padding(start = 2.dp),
                                 label = { Text(stringResource(R.string.party1_win_amount)) },
-                                onValueChange = { newParty1WinAmount = it },
+                                onValueChange = { newValue ->
+                                    try {
+                                        if (newValue.isNotEmpty()) {
+                                            newValue.toDouble()
+                                        }
+                                        newParty1WinAmount = newValue
+                                    } catch (e: NumberFormatException) {
+                                        if (!isToastDisplayed) {
+                                            showToast(context.resources.getString(R.string.only_numbers_error))
+                                            isToastDisplayed = true
+                                        }
+                                    }
+                                },
                                 isError = party1WinAmountError.isNotEmpty(),
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -364,7 +274,19 @@ fun AddNewBetForm(
                                 label = {
                                     Text(stringResource(R.string.party2_win_amount))
                                 },
-                                onValueChange = { newParty2WinAmount = it },
+                                onValueChange = { newValue ->
+                                    try {
+                                        if (newValue.isNotEmpty()) {
+                                            newValue.toDouble()
+                                        }
+                                        newParty2WinAmount = newValue
+                                    } catch (e: NumberFormatException) {
+                                        if (!isToastDisplayed) {
+                                            showToast(context.resources.getString(R.string.only_numbers_error))
+                                            isToastDisplayed = true
+                                        }
+                                    }
+                                },
                                 isError = party2WinAmountError.isNotEmpty(),
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -391,13 +313,13 @@ fun AddNewBetForm(
                         )
                     }
                     item {
-                        SpinnerSample(
-                            listOf("Unresolved", "Party 1 Win", "Party 2 Win"),
-                            preselected = "Unresolved",
+                        Spinner(
+                            listOf(ResolutionStatus.UNRESOLVED.cleanName, ResolutionStatus.PARTY1_WIN.cleanName, ResolutionStatus.PARTY2_WIN.cleanName),
+                            preselected = ResolutionStatus.UNRESOLVED.cleanName,
                             onSelectionChanged = { newStatus ->
                                 resolutionStatus = when (newStatus) {
-                                    "Party 1 Win" -> ResolutionStatus.PARTY1_WIN
-                                    "Party 2 Win" -> ResolutionStatus.PARTY2_WIN
+                                    ResolutionStatus.PARTY1_WIN.cleanName -> ResolutionStatus.PARTY1_WIN
+                                    ResolutionStatus.PARTY2_WIN.cleanName -> ResolutionStatus.PARTY2_WIN
                                     else -> ResolutionStatus.UNRESOLVED
                                 }
                             },
@@ -420,8 +342,8 @@ fun AddNewBetForm(
                                                 description = newBetDescription,
                                                 party1 = newParty1,
                                                 party2 = newParty2,
-                                                party1WinAmount = newParty1WinAmount,
-                                                party2WinAmount = newParty2WinAmount,
+                                                party1WinAmount = newParty1WinAmount.toDouble(),
+                                                party2WinAmount = newParty2WinAmount.toDouble(),
                                                 resolutionStatus = resolutionStatus,
                                                 createDate = currentDate
                                             )
@@ -432,8 +354,8 @@ fun AddNewBetForm(
                                             description = newBetDescription,
                                             party1 = newParty1,
                                             party2 = newParty2,
-                                            party1WinAmount = newParty1WinAmount,
-                                            party2WinAmount = newParty2WinAmount,
+                                            party1WinAmount = newParty1WinAmount.toDouble(),
+                                            party2WinAmount = newParty2WinAmount.toDouble(),
                                             resolutionStatus = resolutionStatus
                                         )
 
@@ -454,159 +376,6 @@ fun AddNewBetForm(
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                    }
-                }
-            }
-        }
-    }
-}
-
-fun String.capitalizeFirstLetter(): String {
-    if (this.isEmpty()) return this
-    return this[0].uppercase() + this.substring(1).lowercase()
-}
-
-@Composable
-fun SpinnerSample(
-    list: List<String>,
-    preselected: String,
-    onSelectionChanged: (myData: String) -> Unit, modifier: Modifier = Modifier
-) {
-    var selected by remember { mutableStateOf(preselected) }
-    var expanded by remember { mutableStateOf(false) }
-    OutlinedCard(
-        modifier = modifier.clickable {
-            expanded = !expanded
-        }) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top,
-        ) {
-            Text(
-                text = selected,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-            Icon(Icons.Outlined.ArrowDropDown, null, modifier = Modifier.padding(8.dp))
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }, modifier = Modifier.fillMaxWidth()
-            ) {
-                list.forEach { listEntry ->
-                    DropdownMenuItem(
-                        onClick = {
-                            selected = listEntry
-                            expanded = false
-                            onSelectionChanged(selected)
-                        },
-                        text = {
-                            Text(
-                                text = listEntry,
-                                modifier = Modifier
-                            )
-                        },
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BetCard(
-    betItem: BetItem,
-    onBetResolutionChange: (ResolutionStatus) -> Unit = {},
-    onRemoveItem: () -> Unit = {},
-    onEditItem: (BetItem) -> Unit = {}
-) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp
-        ),
-        modifier = Modifier.padding(5.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .animateContentSize()
-        ) {
-            Row(
-                modifier = Modifier.padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                ) {
-                    Text(
-                        text = betItem.title,
-                        style = TextStyle(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        )
-                    )
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        contentDescription = "Delete",
-                        modifier = Modifier.clickable {
-                            onRemoveItem()
-                        },
-                        tint = Color.Red
-                    )
-
-                    IconButton(onClick = {
-                        onEditItem(betItem)
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.Settings,
-                            contentDescription = null
-                        )
-                    }
-
-                    IconButton(onClick = { expanded = !expanded }) {
-                        Icon(
-                            imageVector = if (expanded)
-                                Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                            contentDescription = if (expanded) {
-                                "Less"
-                            } else {
-                                "More"
-                            }
-                        )
-                    }
-                }
-            }
-
-            if (expanded) {
-                Divider(color = Color.Gray, modifier = Modifier.padding(horizontal = 8.dp))
-
-                Surface(
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Text(text = "Description: ${betItem.description}")
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(text = "Party 1: ${betItem.party1}")
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(text = "Party 2: ${betItem.party2}")
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(text = "Party 1 Win Amount: ${betItem.party1WinAmount}")
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(text = "Party 2 Win Amount: ${betItem.party2WinAmount}")
-                        Spacer(modifier = Modifier.height(5.dp))
-                        Text(
-                            text = "Created Date: ${betItem.createDate}",
-                            style = TextStyle(fontSize = 12.sp)
-                        )
                     }
                 }
             }

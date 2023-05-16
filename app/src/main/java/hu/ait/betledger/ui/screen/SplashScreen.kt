@@ -23,7 +23,7 @@ fun SplashScreen(navController: NavController) {
         scope.launch {
             delay(3000)
             navController.navigate("main_screen") {
-                popUpTo("splash_screen") { inclusive = true } // remove splash screen from back stack
+                popUpTo("splash_screen") { inclusive = true }
             }
         }
     }
@@ -32,7 +32,6 @@ fun SplashScreen(navController: NavController) {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        // Replace 'R.drawable.my_logo' with the resource ID of your logo
         Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "App Logo"

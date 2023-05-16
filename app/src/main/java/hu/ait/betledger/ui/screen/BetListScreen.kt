@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.util.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.ArrowDropDown
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -314,6 +316,8 @@ fun AddNewBetForm(
                                 label = { Text(stringResource(R.string.party1_win_amount)) },
                                 onValueChange = { newParty1WinAmount = it },
                                 isError = party1WinAmountError.isNotEmpty(),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 supportingText = {
                                     if (party1WinAmountError.isNotEmpty()) {
                                         Text(
@@ -362,6 +366,8 @@ fun AddNewBetForm(
                                 },
                                 onValueChange = { newParty2WinAmount = it },
                                 isError = party2WinAmountError.isNotEmpty(),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 supportingText = {
                                     if (party2WinAmountError.isNotEmpty()) {
                                         Text(
